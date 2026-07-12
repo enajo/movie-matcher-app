@@ -1,6 +1,9 @@
 import os
 import requests
 from urllib.parse import quote
+from dotenv import load_dotenv
+
+load_dotenv()
 
 TMDB_BEARER_TOKEN = os.getenv("TMDB_BEARER_TOKEN")
 TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500"

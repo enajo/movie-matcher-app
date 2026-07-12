@@ -3,7 +3,8 @@ import pickle
 from pathlib import Path
 
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.decomposition import PCA
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -123,12 +124,19 @@ def main():
         ["movie_id", "title", "tags", "genres_text", "poster_url"]
     ].copy()
 
-    print("Vectorizing tags...")
-    cv = CountVectorizer(max_features=5000, stop_words="english")
-    vectors = cv.fit_transform(processed_movies["tags"]).toarray()
+    print("Vectorizing tags with TF-IDF...")
+    tfidf = TfidfVectorizer(max_features=5000, stop_words="english")
+    vectors = tfidf.fit_transform(processed_movies["tags"]).toarray()
+
+    print("Reducing dimensions with PCA (5000 → 300)...")
+    n_components = min(300, vectors.shape[0], vectors.shape[1])
+    pca = PCA(n_components=n_components)
+    vectors_reduced = pca.fit_transform(vectors)
+    explained = pca.explained_variance_ratio_.sum() * 100
+    print(f"  Variance retained: {explained:.1f}%")
 
     print("Calculating cosine similarity...")
-    similarity = cosine_similarity(vectors)
+    similarity = cosine_similarity(vectors_reduced)
 
     print("Saving processed files...")
     with open(MOVIES_PKL, "wb") as f:

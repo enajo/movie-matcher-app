@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MovieMatch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Variables ──────────────────────────────────────────────────────────── */
+    :root {
+      --bg:           #F1EFE8;
+      --surface:      #FFFFFF;
+      --surface-2:    #E8E6DF;
+      --text:         #2C2C2A;
+      --text-muted:   #7A7870;
+      --teal:         #0F6E56;
+      --teal-mid:     #1D9E75;
+      --teal-light:   #E1F5EE;
+      --amber:        #EF9F27;
+      --border:       rgba(44,44,42,0.1);
+      --nav-bg:       rgba(241,239,232,0.94);
+      --shadow-sm:    0 1px 4px rgba(0,0,0,0.07);
+      --shadow-md:    0 4px 20px rgba(0,0,0,0.10);
+      --shadow-lg:    0 12px 40px rgba(0,0,0,0.14);
+      --radius-card:  14px;
+    }
+
+    body.dark {
+      --bg:           #111110;
+      --surface:      #1C1C1A;
+      --surface-2:    #252523;
+      --text:         #EDEAE0;
+      --text-muted:   #7A7870;
+      --teal:         #1D9E75;
+      --teal-mid:     #26C48F;
+      --teal-light:   #0A2419;
+      --amber:        #EF9F27;
+      --border:       rgba(255,255,255,0.07);
+      --nav-bg:       rgba(17,17,16,0.94);
+      --shadow-sm:    0 1px 4px rgba(0,0,0,0.4);
+      --shadow-md:    0 4px 20px rgba(0,0,0,0.5);
+      --shadow-lg:    0 12px 40px rgba(0,0,0,0.6);
+    }
+
+    /* ── Reset ──────────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+      direction: rtl;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; }
+    img { display: block; }
+
+    /* ── NAVBAR ─────────────────────────────────────────────────────────────── */
+    .navbar {
+      position: fixed;
+      inset-block-start: 0;
+      inset-inline: 0;
+      z-index: 200;
+      height: 64px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      gap: 1.5rem;
+    }
+
+    /* RTL: first in DOM → visually rightmost */
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-shrink: 0;
+    }
+
+    .nav-logo-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .nav-logo-text {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--teal);
+      letter-spacing: -0.04em;
+    }
+
+    .nav-avatar-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-inline-start: 0.5rem;
+      cursor: pointer;
+    }
+
+    .nav-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--teal-light);
+      border: 2px solid var(--teal-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+
+    .nav-user-name  { font-size: 0.78rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .nav-user-sub   { font-size: 0.64rem; color: var(--text-muted); }
+
+    /* Center links */
+    .nav-links {
+      flex: 1;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+    }
+
+    .nav-links a {
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .nav-links a:hover   { color: var(--text); background: var(--border); }
+    .nav-links a.active  { background: var(--text); color: var(--bg); font-weight: 600; }
+
+    /* RTL: last in DOM → visually leftmost */
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { background: var(--border); color: var(--text); }
+
+    /* Pill toggle */
+    .theme-toggle {
+      width: 46px;
+      height: 26px;
+      border-radius: 999px;
+      border: none;
+      background: var(--text);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.25s;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg);
+      transition: transform 0.25s ease;
+    }
+
+    body.dark .theme-toggle::after { transform: translateX(20px); }
+
+    /* ── MAIN ───────────────────────────────────────────────────────────────── */
+    main { padding-top: 64px; }
+
+    /* ── HERO ───────────────────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem 3.5rem;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .hero-h1 {
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.05em;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .hero-h1 .brand { color: var(--teal); }
+
+    .hero-sub {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 2rem;
+    }
+
+    .hero-ctas { display: flex; gap: 0.75rem; justify-content: center; }
+
+    .btn-primary {
+      padding: 0.7rem 1.6rem;
+      border-radius: 999px;
+      background: var(--teal);
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-primary:hover { background: var(--teal-mid); transform: translateY(-1px); }
+
+    .btn-ghost {
+      padding: 0.7rem 1.6rem;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-ghost:hover { border-color: var(--text); }
+
+    /* ── CAROUSEL SECTION ───────────────────────────────────────────────────── */
+    .carousel-section {
+      position: relative;
+      padding: 1rem 0 4rem;
+    }
+
+    .ambient-bg {
+      position: absolute;
+      inset: -30%;
+      background-size: cover;
+      background-position: center;
+      filter: blur(70px) saturate(1.3);
+      opacity: 0.10;
+      transition: background-image 0.6s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body.dark .ambient-bg { opacity: 0.18; }
+
+    /* 3-D coverflow container */
+    .coverflow {
+      position: relative;
+      z-index: 1;
+      height: 360px;
+      perspective: 1400px;
+      perspective-origin: 50% 50%;
+      overflow: hidden;
+    }
+
+    .cf-track {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .c-card {
+      position: absolute;
+      width: 200px;
+      height: 300px;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--surface-2);
+      transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity  420ms ease,
+                  box-shadow 420ms ease;
+      backface-visibility: hidden;
+      will-change: transform, opacity;
+    }
+
+    .c-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .c-card-no-poster {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      color: var(--border);
+    }
+
+    .c-card.center {
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    }
+
+    /* Title strip — only on center card */
+    .c-card-strip {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2.5rem 1rem 1rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.82), transparent);
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.3s;
+      text-align: center;
+    }
+    .c-card.center .c-card-strip { opacity: 1; }
+    .strip-title { font-size: 0.85rem; font-weight: 700; display: block; }
+    .strip-genre { font-size: 0.68rem; color: rgba(255,255,255,0.6); display: block; margin-top: 3px; }
+
+    /* Arrows */
+    .c-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+      transition: all 0.15s;
+    }
+    .c-arrow:hover { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .c-arrow-prev { right: 2.5rem; }
+    .c-arrow-next { left: 2.5rem; }
+
+    /* ── CONTENT TABS ───────────────────────────────────────────────────────── */
+    .content-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      padding: 0.45rem 1.4rem;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn.active  { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .tab-btn:hover:not(.active) { border-color: var(--text); color: var(--text); }
+
+    /* ── RECS PANEL ─────────────────────────────────────────────────────────── */
+    .recs-panel {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 2rem 2rem 0;
+      display: none;
+    }
+
+    .recs-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.9rem 1.25rem;
+      background: var(--teal-light);
+      border: 1px solid var(--teal-mid);
+      border-radius: 0.85rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .recs-dot   { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+    .recs-label { font-size: 0.68rem; color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+    .recs-title { font-size: 0.95rem; font-weight: 700; color: var(--teal); }
+    .recs-close {
+      margin-inline-start: auto;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--teal-mid);
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0.2rem;
+    }
+
+    /* ── FOR YOU ────────────────────────────────────────────────────────────── */
+    #forYouSection {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 0 2rem 2rem;
+      display: none;
+    }
+
+    #forYouSection.visible { display: block; }
+
+    .fy-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .fy-badge {
+      background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+    }
+
+    .fy-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .fy-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+
+    #forYouGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ── BROWSE ─────────────────────────────────────────────────────────────── */
+    .browse-section {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-icon-wrap {
+      position: absolute;
+      top: 50%;
+      left: 1rem;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      font-size: 0.9rem;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.85rem 1.1rem 0.85rem 3rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      direction: rtl;
+    }
+
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus {
+      border-color: var(--teal-mid);
+      box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
+    }
+
+    /* Genre strip */
+    .genre-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .g-pill {
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .g-pill:hover      { border-color: var(--teal-mid); color: var(--teal); }
+    .g-pill.active     { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+    .browse-heading {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    /* ── GRID ───────────────────────────────────────────────────────────────── */
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .m-card {
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .m-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+    .m-poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+
+    .m-poster-empty {
+      width: 100%;
+      aspect-ratio: 2/3;
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--border);
+    }
+
+    .m-body { padding: 0.6rem 0.7rem 0.7rem; }
+
+    .m-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.2rem;
+    }
+
+    .m-genre {
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .m-actions {
+      display: flex;
+      gap: 0.35rem;
+      margin-top: 0.5rem;
+      align-items: center;
+    }
+
+    .rate-btn {
+      flex: 1;
+      padding: 0.22rem 0;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .rate-btn:hover { background: var(--border); }
+
+    .rated-badge {
+      font-size: 0.66rem;
+      color: var(--amber);
+    }
+
+    /* Spinner / empty */
+    .spinner-msg {
+      text-align: center;
+      padding: 3.5rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      grid-column: 1 / -1;
+    }
+
+    /* ── DEBUG PANEL ────────────────────────────────────────────────────────── */
+    .debug-panel {
+      display: none;    /* hidden from users; toggle with Shift+D x3 */
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      z-index: 300;
+      width: 240px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      transition: all 0.25s ease;
+      direction: ltr;
+    }
+
+    .debug-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 0.9rem;
+      background: var(--surface-2);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .debug-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .debug-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      flex-shrink: 0;
+    }
+
+    .debug-dot.warn  { background: var(--amber); }
+    .debug-dot.ready { background: #22c55e; }
+
+    .debug-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .debug-chevron {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+
+    .debug-panel.collapsed .debug-chevron { transform: rotate(180deg); }
+    .debug-panel.collapsed .debug-body    { display: none; }
+
+    .debug-body { padding: 0.85rem 0.9rem; }
+
+    /* Progress bar */
+    .progress-wrap {
+      margin-bottom: 0.85rem;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .progress-label strong { color: var(--text); }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--surface-2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--teal);
+      transition: width 0.4s ease;
+    }
+
+    .progress-bar-fill.warn  { background: var(--amber); }
+    .progress-bar-fill.ready { background: #22c55e; }
+
+    .svd-status {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-radius: 999px;
+      text-align: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .svd-status.waiting { background: var(--surface-2); color: var(--text-muted); }
+    .svd-status.ready   { background: #dcfce7; color: #15803d; }
+    body.dark .svd-status.ready { background: #14532d; color: #86efac; }
+
+    /* Rated list */
+    .debug-rated-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 0.45rem;
+    }
+
+    .debug-rated-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .debug-rated-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text);
+    }
+
+    .debug-rated-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .debug-rated-vote {
+      flex-shrink: 0;
+      margin-inline-start: 0.4rem;
+    }
+
+    .debug-session {
+      margin-top: 0.75rem;
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      word-break: break-all;
+    }
+
+    .debug-panel.dev-visible { display: block; }
+
+    /* ── FOR YOU — refresh button & loading state ───────────────────────────── */
+    .fy-header {
+      justify-content: space-between;
+    }
+
+    .fy-refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.75rem;
+      font-family: inherit;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .fy-refresh-btn:hover { color: var(--teal); border-color: var(--teal); }
+
+    .fy-refresh-icon { display: inline-block; transition: transform 0.1s; }
+    .fy-refresh-btn.spinning .fy-refresh-icon {
+      animation: fy-spin 0.7s linear infinite;
+    }
+
+    @keyframes fy-spin { to { transform: rotate(360deg); } }
+
+    #forYouGrid {
+      transition: opacity 0.25s ease;
+    }
+
+    #forYouGrid.loading { opacity: 0.35; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ─────────────────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <!-- RTL: rightmost visually -->
+  <a href="#" class="nav-brand">
+    <div class="nav-logo-box">🎬</div>
+    <span class="nav-logo-text">MOVIEMATCH</span>
+  </a>
+
+  <div class="nav-avatar-group">
+    <div class="nav-avatar">U</div>
+    <div>
+      <div class="nav-user-name">User</div>
+      <div class="nav-user-sub">Free plan</div>
+    </div>
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#" class="active">Home</a></li>
+    <li><a href="#browse">Movies</a></li>
+    <li><a href="#browse">Series</a></li>
+    <li><a href="#browse">Kids</a></li>
+  </ul>
+
+  <!-- RTL: leftmost visually -->
+  <div class="nav-controls">
+    <button class="icon-btn" title="Search" onclick="document.getElementById('searchInput').focus()">🔍</button>
+    <span class="icon-btn" title="Dark mode">🌙</span>
+    <button class="theme-toggle" id="themeToggle" title="Toggle dark mode"></button>
+  </div>
+</nav>
+
+<!-- ── MAIN ───────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1 class="hero-h1">
+      Your next favourite film,<br>
+      found by <span class="brand">MovieMatch</span>
+    </h1>
+    <p class="hero-sub">
+      Pick a movie you love and we'll instantly surface the ones that feel just like it —
+      powered by metadata similarity, not guesswork.
+    </p>
+    <div class="hero-ctas">
+      <button class="btn-primary">Buy Subscription</button>
+      <a href="#carousel" class="btn-ghost">Most Popular</a>
+    </div>
+  </section>
+
+  <!-- CAROUSEL -->
+  <section class="carousel-section" id="carousel">
+    <div class="ambient-bg" id="ambientBg"></div>
+    <div class="coverflow">
+      <button class="c-arrow c-arrow-prev" id="cPrev">&#8249;</button>
+      <div class="cf-track" id="cTrack"></div>
+      <button class="c-arrow c-arrow-next" id="cNext">&#8250;</button>
+    </div>
+  </section>
+
+  <!-- CONTENT TABS -->
+  <div class="content-tabs">
+    <button class="tab-btn active" data-tab="series">Series</button>
+    <button class="tab-btn" data-tab="movie">Movie</button>
+  </div>
+
+  <!-- RECOMMENDATIONS PANEL -->
+  <div class="recs-panel" id="recsPanel">
+    <div class="recs-banner">
+      <div class="recs-dot"></div>
+      <div>
+        <div class="recs-label">Because you picked</div>
+        <div class="recs-title" id="recsBannerTitle"></div>
+      </div>
+      <button class="recs-close" id="recsClose" title="Close">&#10005;</button>
+    </div>
+    <div class="movie-grid" id="recsGrid"></div>
+  </div>
+
+  <!-- FOR YOU -->
+  <section id="forYouSection">
+    <div class="fy-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+          <span class="fy-title">For You</span>
+          <span class="fy-badge">✦ Personalised</span>
+        </div>
+        <div class="fy-subtitle">Picks powered by your taste · SVD model</div>
+      </div>
+      <button class="fy-refresh-btn" id="fyRefreshBtn" title="Refresh my picks">
+        <span class="fy-refresh-icon">↺</span>
+        Refresh
+      </button>
+    </div>
+    <div class="movie-grid" id="forYouGrid">
+      <p class="spinner-msg">Generating your picks…</p>
+    </div>
+  </section>
+
+  <!-- BROWSE -->
+  <section class="browse-section" id="browse">
+    <div class="search-wrap">
+      <span class="search-icon-wrap">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        id="searchInput"
+        placeholder="Search for a movie title…"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="genre-strip" id="genreStrip"></div>
+
+    <div class="browse-heading" id="browseHeading">Browse All</div>
+    <div class="movie-grid" id="browseGrid">
+      <p class="spinner-msg">Loading movies…</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── DEBUG PANEL ─────────────────────────────────────────────────────────── -->
+<div class="debug-panel" id="debugPanel">
+  <div class="debug-header" id="debugToggle">
+    <div class="debug-header-left">
+      <div class="debug-dot" id="debugDot"></div>
+      <span class="debug-title">SVD Progress</span>
+    </div>
+    <span class="debug-chevron">▲</span>
+  </div>
+  <div class="debug-body">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Ratings collected</span>
+        <strong id="debugCount">0 / 10</strong>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="debugBar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="svd-status waiting" id="svdStatus">
+      Waiting for more ratings…
+    </div>
+    <div class="debug-rated-label">Your ratings</div>
+    <div class="debug-rated-list" id="debugList">
+      <span style="font-size:0.7rem;color:var(--text-muted)">None yet — rate some movies above.</span>
+    </div>
+    <div class="debug-session" id="debugSession"></div>
+  </div>
+</div>
+
+<script>
+// ── Session identity ───────────────────────────────────────────────────────────
+function getSessionId() {
+  let id = localStorage.getItem('mm_uid');
+  if (!id) {
+    id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    localStorage.setItem('mm_uid', id);
+  }
+  return id;
+}
+
+const SESSION_ID = getSessionId();
+
+// ── State ──────────────────────────────────────────────────────────────────────
+const state = {
+  carousel: [],
+  ci: 0,               // carousel index
+  genre: 'All',
+  query: '',
+  ratings: {},
+  ratedNow: new Set(),
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+async function get(url) {
+  const r = await fetch(url);
+  return r.json();
+}
+
+async function post(url, body) {
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  return r.json();
+}
+
+// ── Theme ──────────────────────────────────────────────────────────────────────
+$('themeToggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});
+
+// ── 3-D Coverflow ──────────────────────────────────────────────────────────────
+// Each slot: tx = horizontal offset from center (px), ry = Y-axis rotation (deg),
+// tz = Z depth (px), sc = scale, op = opacity, z = z-index
+const CF = [
+  { tx: -380, ry: -58, tz: -120, sc: 0.78, op: 0.55, z: 1 },
+  { tx: -195, ry: -44, tz:  -50, sc: 0.88, op: 0.80, z: 2 },
+  { tx:    0, ry:   0, tz:    0, sc: 1.00, op: 1.00, z: 3 },
+  { tx:  195, ry:  44, tz:  -50, sc: 0.88, op: 0.80, z: 2 },
+  { tx:  380, ry:  58, tz: -120, sc: 0.78, op: 0.55, z: 1 },
+];
+
+function buildCarousel(movies) {
+  const track = $('cTrack');
+  track.innerHTML = '';
+  movies.forEach((m, i) => {
+    const el = document.createElement('div');
+    el.className = 'c-card';
+    el.dataset.i = i;
+    el.innerHTML = (m.poster
+      ? `<img src="${m.poster}" alt="${m.title}" loading="lazy">`
+      : `<div class="c-card-no-poster">🎬</div>`)
+      + `<div class="c-card-strip">
+           <span class="strip-title">${m.title}</span>
+           <span class="strip-genre">${(m.genres || '').split(',')[0]?.trim() || ''}</span>
+         </div>`;
+    el.addEventListener('click', () => {
+      if (i === state.ci) openRecs(m.title);
+      else { state.ci = i; applyCoverflow(); }
+    });
+    track.appendChild(el);
+  });
+  applyCoverflow();
+}
+
+function applyCoverflow() {
+  const cards = [...document.querySelectorAll('.c-card')];
+  cards.forEach((card, i) => {
+    const offset = i - state.ci;       // relative position to center
+    const abs    = Math.abs(offset);
+
+    if (abs > 2) {
+      card.style.opacity = '0';
+      card.style.pointerEvents = 'none';
+      return;
+    }
+
+    card.style.opacity = '1';
+    card.style.pointerEvents = 'auto';
+    card.classList.toggle('center', offset === 0);
+
+    // Map absolute distance to slot config; direction flips ry and tx sign
+    const slot = CF[offset + 2];      // offset -2..+2 → index 0..4
+    card.style.transform =
+      `translateX(${slot.tx}px) rotateY(${slot.ry}deg) translateZ(${slot.tz}px) scale(${slot.sc})`;
+    card.style.zIndex   = slot.z;
+    card.style.opacity  = slot.op;
+  });
+
+  const m = state.carousel[state.ci];
+  if (m?.poster) $('ambientBg').style.backgroundImage = `url('${m.poster}')`;
+}
+
+$('cPrev').addEventListener('click', () => {
+  if (state.ci > 0) { state.ci--; applyCoverflow(); }
+});
+$('cNext').addEventListener('click', () => {
+  if (state.ci < state.carousel.length - 1) { state.ci++; applyCoverflow(); }
+});
+
+// ── Genres ─────────────────────────────────────────────────────────────────────
+async function loadGenres() {
+  const genres = await get('/api/genres');
+  const strip = $('genreStrip');
+  strip.innerHTML = genres.map(g =>
+    `<button class="g-pill${g === 'All' ? ' active' : ''}" data-g="${g}">${g}</button>`
+  ).join('');
+  strip.addEventListener('click', e => {
+    const pill = e.target.closest('.g-pill');
+    if (!pill) return;
+    document.querySelectorAll('.g-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    state.genre = pill.dataset.g;
+    loadGrid();
+  });
+}
+
+// ── Movie card ─────────────────────────────────────────────────────────────────
+function actionsHTML(title) {
+  if (state.ratedNow.has(title)) {
+    const r = state.ratings[title] || {};
+    return `<div class="m-actions"><span class="rated-badge">★ ${r.up || 0} rated</span></div>`;
+  }
+  return `
+    <div class="m-actions">
+      <button class="rate-btn" data-t="${title}" data-v="1">👍</button>
+      <button class="rate-btn" data-t="${title}" data-v="-1">👎</button>
+    </div>`;
+}
+
+function cardHTML(m) {
+  const title = m.title;
+  const poster = m.poster || m.poster_url || '';
+  const genre  = (m.genres || m.genres_text || '').split(',').slice(0, 2).map(s => s.trim()).filter(Boolean).join(' · ');
+  return `
+    <div class="m-card" data-title="${title}">
+      ${poster
+        ? `<img class="m-poster" src="${poster}" alt="${title}" loading="lazy">`
+        : `<div class="m-poster-empty">🎬</div>`}
+      <div class="m-body">
+        <div class="m-title" title="${title}">${title}</div>
+        <div class="m-genre">${genre}</div>
+        ${actionsHTML(title)}
+      </div>
+    </div>`;
+}
+
+function wireGrid(container) {
+  container.querySelectorAll('.m-card').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('.rate-btn')) return;
+      openRecs(card.dataset.title);
+    });
+  });
+  container.querySelectorAll('.rate-btn').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const title = btn.dataset.t;
+      const val   = parseInt(btn.dataset.v);
+      await post('/api/rate', { user_id: SESSION_ID, title, rating: val });
+      state.ratedNow.add(title);
+      if (!state.ratings[title]) state.ratings[title] = { up: 0, down: 0 };
+      val === 1 ? state.ratings[title].up++ : state.ratings[title].down++;
+      const actions = btn.closest('.m-actions');
+      if (actions) actions.outerHTML = actionsHTML(title);
+      refreshDebugPanel();
+    });
+  });
+}
+
+// ── Browse grid ────────────────────────────────────────────────────────────────
+async function loadGrid() {
+  const grid    = $('browseGrid');
+  const heading = $('browseHeading');
+  grid.innerHTML = '<p class="spinner-msg">Loading…</p>';
+
+  const p = new URLSearchParams();
+  if (state.query) p.set('search', state.query);
+  if (state.genre && state.genre !== 'All') p.set('genre', state.genre);
+
+  const movies = await get(`/api/movies?${p}`);
+
+  heading.textContent = state.query
+    ? `Results for "${state.query}"`
+    : state.genre !== 'All' ? `${state.genre} Movies` : 'Browse All';
+
+  if (!movies.length) {
+    grid.innerHTML = '<p class="spinner-msg">No movies found.</p>';
+    return;
+  }
+
+  grid.innerHTML = movies.map(cardHTML).join('');
+  wireGrid(grid);
+}
+
+// ── Recommendations ────────────────────────────────────────────────────────────
+async function openRecs(title) {
+  const panel = $('recsPanel');
+  const grid  = $('recsGrid');
+  $('recsBannerTitle').textContent = title;
+  panel.style.display = 'block';
+  grid.innerHTML = '<p class="spinner-msg">Finding similar movies…</p>';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const recs = await get(`/api/recommend?title=${encodeURIComponent(title)}`);
+  if (!recs.length) {
+    grid.innerHTML = '<p class="spinner-msg">No recommendations found.</p>';
+    return;
+  }
+  grid.innerHTML = recs.map(cardHTML).join('');
+  wireGrid(grid);
+}
+
+$('recsClose').addEventListener('click', () => {
+  $('recsPanel').style.display = 'none';
+});
+
+// ── Search ─────────────────────────────────────────────────────────────────────
+let searchTimer;
+$('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  state.query = e.target.value.trim();
+  searchTimer = setTimeout(loadGrid, 350);
+});
+
+// ── Tabs ───────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ── For You ────────────────────────────────────────────────────────────────────
+let _forYouFetching = false;   // prevent concurrent requests
+let _forYouShown    = false;   // track whether section is visible yet
+
+async function loadForYou(opts = {}) {
+  if (_forYouFetching) return;
+  _forYouFetching = true;
+
+  const section    = $('forYouSection');
+  const grid       = $('forYouGrid');
+  const refreshBtn = $('fyRefreshBtn');
+  const isRefresh  = _forYouShown && opts.refresh;
+
+  // While fetching: spin the button, dim the existing grid
+  if (refreshBtn) refreshBtn.classList.add('spinning');
+  if (isRefresh)  grid.classList.add('loading');
+  else if (!_forYouShown) grid.innerHTML = '<p class="spinner-msg">Generating your picks…</p>';
+
+  try {
+    const data = await get(`/api/recommend/me?user_id=${encodeURIComponent(SESSION_ID)}`);
+
+    if (!data.ready) {
+      _forYouFetching = false;
+      if (refreshBtn) refreshBtn.classList.remove('spinning');
+      if (isRefresh)  grid.classList.remove('loading');
+      return;
+    }
+
+    // Show section on first appearance and scroll to it
+    if (!_forYouShown) {
+      section.classList.add('visible');
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      _forYouShown = true;
+    }
+
+    grid.classList.remove('loading');
+
+    if (!data.recommendations.length) {
+      grid.innerHTML = '<p class="spinner-msg">No picks yet — keep rating!</p>';
+    } else {
+      grid.innerHTML = data.recommendations.map(cardHTML).join('');
+      wireGrid(grid);
+    }
+  } finally {
+    _forYouFetching = false;
+    if (refreshBtn) refreshBtn.classList.remove('spinning');
+  }
+}
+
+$('fyRefreshBtn').addEventListener('click', () => loadForYou({ refresh: true }));
+
+// ── Debug panel — hidden from users; press Shift+D three times to reveal ───────
+let _dbgKeyCount = 0, _dbgKeyTimer;
+document.addEventListener('keydown', e => {
+  if (e.key === 'D' && e.shiftKey) {
+    clearTimeout(_dbgKeyTimer);
+    _dbgKeyCount++;
+    _dbgKeyTimer = setTimeout(() => { _dbgKeyCount = 0; }, 1000);
+    if (_dbgKeyCount >= 3) {
+      _dbgKeyCount = 0;
+      $('debugPanel').classList.toggle('dev-visible');
+    }
+  }
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+async function init() {
+  state.ratings = await get('/api/ratings');
+
+  const featured = await get('/api/movies?limit=12');
+  state.carousel = featured;
+  buildCarousel(featured);
+
+  await loadGenres();
+  await loadGrid();
+  await loadForYou();   // shows instantly if user already has 10+ ratings
+}
+
+init();
+
+// ── Debug panel ────────────────────────────────────────────────────────────────
+const SVD_TARGET = 10;
+
+async function refreshDebugPanel() {
+  const data = await get(`/api/ratings/me?user_id=${encodeURIComponent(SESSION_ID)}`);
+  const count    = data.count;
+  const pct      = Math.min((count / SVD_TARGET) * 100, 100);
+  const isReady  = data.svd_ready;
+
+  // Progress bar
+  $('debugCount').textContent = `${count} / ${SVD_TARGET}`;
+  const bar = $('debugBar');
+  bar.style.width = `${pct}%`;
+  bar.className = `progress-bar-fill ${isReady ? 'ready' : count >= 5 ? 'warn' : ''}`;
+
+  // Dot
+  const dot = $('debugDot');
+  dot.className = `debug-dot ${isReady ? 'ready' : count >= 5 ? 'warn' : ''}`;
+
+  // Status pill
+  const status = $('svdStatus');
+  if (isReady) {
+    status.textContent = '✓ Ready for SVD — Phase 2 unlocked';
+    status.className = 'svd-status ready';
+    loadForYou({ refresh: _forYouShown });  // first time: show & scroll; later: refresh grid
+  } else {
+    status.textContent = `Rate ${SVD_TARGET - count} more to unlock SVD`;
+    status.className = 'svd-status waiting';
+  }
+
+  // Rated list
+  const list = $('debugList');
+  if (!data.ratings.length) {
+    list.innerHTML = `<span style="font-size:0.7rem;color:var(--text-muted)">None yet — rate some movies above.</span>`;
+  } else {
+    list.innerHTML = [...data.ratings].reverse().map(r => `
+      <div class="debug-rated-item">
+        <span class="debug-rated-title" title="${r.title}">${r.title}</span>
+        <span class="debug-rated-vote">${r.rating === 1 ? '👍' : '👎'}</span>
+      </div>
+    `).join('');
+  }
+
+  // Session ID
+  $('debugSession').textContent = `Session: ${SESSION_ID.slice(0, 18)}…`;
+}
+
+// Collapse / expand
+$('debugToggle').addEventListener('click', () => {
+  $('debugPanel').classList.toggle('collapsed');
+});
+
+refreshDebugPanel();
+</script>
+</body>
+</html>

@@ -1,5 +1,7 @@
-streamlit
+flask
 pandas
 numpy
 scikit-learn
+scikit-surprise
 requests
+python-dotenv

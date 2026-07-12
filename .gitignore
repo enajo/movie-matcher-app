@@ -5,3 +5,4 @@ __pycache__/
 *.pkl
 *Zone.Identifier
 .DS_Store
+data/ratings.json
